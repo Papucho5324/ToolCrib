@@ -1,0 +1,477 @@
+﻿@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["MostrarHeader"] = true;
+    ViewData["MostartMenu"] = true;
+    ViewData["MostartEmp"] = false;
+    ViewData["MostrarToolCrib"] = true;
+}
+<link href="~/css/solicitar.css" rel="stylesheet" />
+<link href="~/css/dashboard.css" rel="stylesheet" />
+
+<div class="container-fluid dashboard-container">
+    <!-- Sección de Filtros para Dashboard -->
+    <div class="filter-section">
+        <h5 class="mb-4">
+            <i class="fas fa-filter me-2"></i>
+            Filtros de Dashboard
+        </h5>
+
+        <form method="get" action="@Url.Action("Index", "Dashboard")" id="dashboardFilterForm">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="dashboardFromDate" class="form-label">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Fecha Desde
+                    </label>
+                    <input type="date"
+                           class="form-control"
+                           id="dashboardFromDate"
+                           name="from"
+                           value="@ViewBag.FromFilter">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="dashboardToDate" class="form-label">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Fecha Hasta
+                    </label>
+                    <input type="date"
+                           class="form-control"
+                           id="dashboardToDate"
+                           name="to"
+                           value="@ViewBag.ToFilter">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="dashboardMaterialType" class="form-label">
+                        <i class="fas fa-boxes me-1"></i>
+                        Tipo de Material
+                    </label>
+                    <select class="form-select" id="dashboardMaterialType" name="materialType">
+                        <option value="">Todos los tipos</option>
+                        @if (ViewBag.MaterialTypeFilter?.ToString() == "PAP")
+                        {
+                            <option value="PAP" selected>Office Supplies (PAP)</option>
+                            <option value="TOP">Toolcrib (TOP)</option>
+                        }
+                        else if (ViewBag.MaterialTypeFilter?.ToString() == "TOP")
+                        {
+                            <option value="PAP">Office Supplies (PAP)</option>
+                            <option value="TOP" selected>Toolcrib (TOP)</option>
+                        }
+                        else
+                        {
+                            <option value="PAP">Office Supplies (PAP)</option>
+                            <option value="TOP">Toolcrib (TOP)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="dashboardFisGroup" class="form-label">
+                        <i class="fas fa-users me-1"></i>
+                        Grupo FIS
+                    </label>
+                    <select class="form-select" id="dashboardFisGroup" name="fisGroup">
+                        <option value="">Todos los grupos</option>
+                        @foreach (var group in Model.GroupConsumptionData)
+                        {
+                            @if (ViewBag.FISGroupFilter?.ToString() == group.FisGroup)
+                            {
+                                <option value="@group.FisGroup" selected>@group.FisGroup</option>
+                            }
+                            else
+                            {
+                                <option value="@group.FisGroup">@group.FisGroup</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-center gap-3">
+                    <button type="submit" class="btn btn-apply-filters text-white px-4 py-2">
+                        <i class="fas fa-search me-2"></i>
+                        Aplicar Filtros
+                    </button>
+                    <button type="button" class="btn btn-clear-filters text-white px-4 py-2" onclick="clearDashboardFilters()">
+                        <i class="fas fa-times me-2"></i>
+                        Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- KPIs Section -->
+    <div class="row kpi-row">
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="dashboard-card kpi-card text-center h-100">
+                <div class="card-title">Total Solicitudes</div>
+                <div class="kpi-value">
+                    @(Model.RequestStatusData.Sum(d => d.TotalRequests))
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="dashboard-card kpi-card text-center h-100">
+                <div class="card-title">Costo Total</div>
+                <div class="kpi-value">
+                    $@string.Format("{0:N2}", Model.GrandTotalAmount)
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="dashboard-card kpi-card text-center h-100">
+                <div class="card-title">Solicitudes Otorgadas</div>
+                <div class="kpi-value">
+                    @(Model.RequestStatusData.FirstOrDefault(d => d.Status == "TERMINADO")?.TotalRequests ?? 0)
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="dashboard-card kpi-card text-center h-100">
+                <div class="card-title">Solicitudes Rechazadas</div>
+                <div class="kpi-value">
+                    @(Model.RequestStatusData.FirstOrDefault(d => d.Status == "RECHAZADO")?.TotalRequests ?? 0)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row charts-row mb-4">
+        <div class="col-lg-5 col-md-12 mb-4">
+            <div class="dashboard-card chart-card h-100">
+                <h5 class="card-title">Solicitudes por Estado</h5>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7 col-md-12 mb-4">
+            <div class="dashboard-card chart-card h-100">
+                <h5 class="card-title">Gasto por Grupo de Trabajo</h5>
+                <div class="chart-container">
+                    <canvas id="groupConsumptionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="dashboard-card chart-card">
+                <h5 class="card-title">Tendencia de Solicitudes Diarias</h5>
+                <div class="chart-container-large">
+                    <canvas id="dailyRequestsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4 section-divider" />
+
+    <!-- DataTable Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="dashboard-card table-card">
+                <h5 class="card-title">Detalles de Solicitudes Finalizadas</h5>
+
+                <div class="row mb-3 filter-controls">
+                    <div class="col-md-3">
+                        <label for="materialTypeFilter">Tipo de Material</label>
+                        <select id="materialTypeFilter" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="PAP">Office Supplies</option>
+                            <option value="TOP">Toolcrib</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="fisGroupFilter">Área de Trabajo</label>
+                        <select id="fisGroupFilter" class="form-control">
+                            <option value="">Todas</option>
+                            @foreach (var fisGroup in Model.GroupConsumptionData)
+                            {
+                                <option value="@fisGroup.FisGroup">@fisGroup.FisGroup</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="fromDate">Fecha Inicio</label>
+                        <input type="date" id="fromDate" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="toDate">Fecha Fin</label>
+                        <input type="date" id="toDate" class="form-control" />
+                    </div>
+
+                    <div class="col-12 mt-3 text-right">
+                        <button id="filterButton" class="btn btn-primary">Aplicar Filtros</button>
+                        <button id="clearFiltersButton" class="btn btn-secondary">Limpiar Filtros</button>
+                    </div>
+                </div>
+
+                <table id="requestsTable" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>BadgeNo</th>
+                            <th>Área</th>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>UM</th>
+                            <th>Cantidad</th>
+                            <th>Nota</th>
+                            <th>Estatus</th>
+                            <th>Aprobador</th>
+                            <th>Nota Aprob.</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" />
+    <script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script>
+        // Función para limpiar los filtros del dashboard
+        function clearDashboardFilters() {
+            document.getElementById('dashboardFromDate').value = '';
+            document.getElementById('dashboardToDate').value = '';
+            document.getElementById('dashboardMaterialType').value = '';
+            document.getElementById('dashboardFisGroup').value = '';
+            document.getElementById('dashboardFilterForm').submit();
+        }
+
+        // Datos del modelo
+        var requestStatusData = @Html.Raw(Json.Serialize(Model.RequestStatusData));
+        var groupConsumptionData = @Html.Raw(Json.Serialize(Model.GroupConsumptionData));
+        var dailyRequestsData = @Html.Raw(Json.Serialize(Model.DailyRequestsData));
+
+        // --- Gráfico de Pastel de Estados ---
+        var statusChartCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusChartCtx, {
+            type: 'pie',
+            data: {
+                labels: requestStatusData.map(d => d.status),
+                datasets: [{
+                    label: 'Solicitudes por Estado',
+                    data: requestStatusData.map(d => d.totalRequests),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // --- Gráfico de Barras de Consumo por Grupo ---
+        var groupChartCtx = document.getElementById('groupConsumptionChart').getContext('2d');
+        new Chart(groupChartCtx, {
+            type: 'bar',
+            data: {
+                labels: groupConsumptionData.map(d => d.fisGroup),
+                datasets: [{
+                    label: 'Gasto Total ($)',
+                    data: groupConsumptionData.map(d => d.totalAmount),
+                    backgroundColor: '#1cc88a',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            },
+                            maxTicksLimit: 8
+                        },
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Gasto: $' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- Gráfico de Líneas de Tendencias ---
+        var dailyChartCtx = document.getElementById('dailyRequestsChart').getContext('2d');
+        new Chart(dailyChartCtx, {
+            type: 'line',
+            data: {
+                labels: dailyRequestsData.map(d => new Date(d.requestDate).toLocaleDateString()),
+                datasets: [{
+                    label: 'Solicitudes Diarias',
+                    data: dailyRequestsData.map(d => d.totalRequests),
+                    borderColor: '#36b9cc',
+                    backgroundColor: 'rgba(54, 185, 204, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#36b9cc',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            maxTicksLimit: 8
+                        },
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // JavaScript para Datatables
+        $(document).ready(function() {
+            var table = $('#requestsTable').DataTable({
+                "ajax": {
+                    "url": "@Url.Action("GetRequestsTable", "Dashboard")",
+                    "type": "GET",
+                    "datatype": "json",
+                    "data": function(d) {
+                        var fromDate = $('#fromDate').val();
+                        var toDate = $('#toDate').val();
+                        var materialType = $('#materialTypeFilter').val();
+                        var fisGroup = $('#fisGroupFilter').val();
+
+                        d.from = fromDate || null;
+                        d.to = toDate || null;
+                        d.materialType = materialType || null;
+                        d.fisGroup = fisGroup || null;
+                    }
+                },
+                "columns": [
+                    { "data": "noFolio" },
+                    { "data": "badgeNo" },
+                    { "data": "fisGroup" },
+                    { "data": "codeTc" },
+                    { "data": "description" },
+                    { "data": "um" },
+                    { "data": "qty" },
+                    { "data": "remark" },
+                    { "data": "status" },
+                    { "data": "approver" },
+                    { "data": "approverRemark" },
+                    {
+                        "data": "udt",
+                        "render": function(data) {
+                            return new Date(data).toLocaleDateString();
+                        }
+                    }
+                ],
+                "responsive": true,
+                "scrollX": true,
+                "scrollY": "400px",
+                "scrollCollapse": true,
+                "processing": true,
+                "serverSide": false,
+                "language": {
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "lengthMenu": "Mostrar _MENU_ registros",
+                    "info": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+                    "loadingRecords": "Cargando...",
+                    "zeroRecords": "No se encontraron resultados",
+                    "emptyTable": "No hay datos disponibles en la tabla",
+                    "paginate": {
+                        "first": "Primero",
+                        "previous": "Anterior",
+                        "next": "Siguiente",
+                        "last": "Último"
+                    }
+                },
+                order: [[0, 'desc']],
+                "dom": '<"top"lf>rt<"bottom"ip><"clear">',
+                "initComplete": function() {
+                    $('.dataTables_scrollBody').css('min-height', '200px');
+                }
+            });
+
+            $('#filterButton').click(function() {
+                table.ajax.reload();
+            });
+
+            $('#clearFiltersButton').click(function() {
+                $('#materialTypeFilter').val('');
+                $('#fisGroupFilter').val('');
+                $('#fromDate').val('');
+                $('#toDate').val('');
+                table.ajax.reload();
+            });
+        });
+    </script>
+}

@@ -1,0 +1,83 @@
+﻿@{
+	ViewData["Title"] = "Office Supplies";
+	ViewData["MostrarHeader"] = true;
+
+}
+
+
+<div class="container py-4">
+	<div class="row">
+		<div class="col-lg-8 m-auto">
+			<div class="tool-container">
+				<div class="tool-form">
+					<div class="container-fluid h-100">
+						<div class="row h-100 align-items-center">
+							<div class="col-12 col-md-3 text-md-start text-center mb-2 mb-md-0">
+								<h6 class="mb-0">Folio: <span id="folio">@ViewBag.Folio</span></h6>
+							</div>
+							<div class="col-12 col-md-7 d-flex flex-column flex-md-row align-items-center justify-content-center mb-2 mb-md-0">
+								
+							</div>
+							<div class="col-12 col-md-2 text-center text-md-end">
+								<form asp-controller="OfficeSup" asp-action="Logout" method="post">
+									<button type="submit" class="btn btn-danger btn-sm px-4" id="">Salir</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-lg-8 m-auto">
+			<div class="login-container">
+				<div class="solicitar-form">
+					<h1 class="welcome-title">Solicitar Material</h1>
+					<p class="welcome-subtitle">Por favor llena todos los campos</p>
+
+					<form asp-controller="OfficeSup" asp-action="" method="post">
+						<input type="hidden" id="folioHidden" value="@ViewBag.Folio" />
+						<input type="hidden" id="codigo" value="" />
+
+						<label for="producto" class="mt-3 mb-0">Buscar producto:</label>
+						<select id="producto" class="form-control" name="producto">
+							<option disabled selected>Cargando materiales...</option>
+						</select>
+
+						<label class="mt-3">U.M.</label>
+						<input type="text" id="unidadMedida" class="form-control" readonly />
+
+						<input type="hidden" id="stock" class="form-control" readonly />
+
+						<label class="mt-3">Cantidad</label>
+						<input type="number" id="cantidad" class="form-control" placeholder="Cantidad a solicitar" />
+
+						<label class="mt-3">Comentarios</label>
+						<select class="form-control" id="comentario">
+							<option selected>Nuevo Ingreso</option>
+							<option>Fin de vida util</option>
+							<option>Extravio</option>
+							<option>Salida de material</option>
+							<option>Visitas</option>
+							<option>Gerencia</option>
+							<option>Otros</option>
+						</select>
+
+						<div class="d-flex mt-4 justify-content-between">
+							<button type="submit" id="btnEnviarSolicitud" class="btn btn-success px-4">Enviar</button>
+							<button type="reset" class="btn btn-info px-4">Limpiar</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<link rel="stylesheet" href="~/css/solicitar.css" asp-append-version="true" />
+@section Scripts {
+	<script src="~/js/solicitarOffice.js"></script>
+
+}

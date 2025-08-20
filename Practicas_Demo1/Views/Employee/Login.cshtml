@@ -1,0 +1,86 @@
+﻿
+
+@{
+	ViewData["Title"] = "Ingresar";
+
+	ViewData["MostrarHeader"] = false;
+
+
+}
+
+
+<div class="container py-4">
+	<div class="row">
+		<div class="col-lg-8 m-auto">
+
+			<div class="login-container">
+				<div class="login-form">
+					<div class="brand">
+						<img src="~/images/Inventec.svg" width="150px" class="p-0" />
+
+					</div>
+
+					<h1 class="welcome-title">Bienvenido!</h1>
+					<p class="welcome-subtitle">Por favor ingresa tu numero de reloj</p>
+
+					<form asp-controller="Employee" asp-action="Login" method="post">
+						<div class="form-group">
+							<input name="badgeNumber" type="text"  class="form-control" placeholder="Ej. IMX000000">
+							@if (ViewBag.Error != null)
+							{
+								<div class="alert alert-danger mt-2">@ViewBag.Error</div>
+							}
+						</div>
+						
+
+
+
+
+						<div class="forgot-password">
+							<p>Unicamente personal autorizado puede solicitar material</p>
+						</div>
+
+						<button type="submit" class="btn btn-primary  signin-btn">Ingresar</button>
+
+						<div class="boss">
+							<a asp-action="Login" asp-controller="Account">Usuario y contrasena? clic aqui</a>
+						</div>
+
+
+
+					</form>
+				</div>
+
+				<div class="login-image">
+					<img src="~/images/hero.jpg" class="img-fluid " />
+					<div class="feature-content m-3 mt-5">
+						<h2 class="feature-title">Tool Crip</h2>
+						<p class="feature-subtitle">Solicita solo lo necesario, cuida lo que es de todos.</p>
+
+
+					</div>
+
+
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+
+</div>
+<link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if (TempData["Error"] != null)
+{
+	<script>
+		Swal.fire({
+			icon: 'error',
+			title: 'Oops...',
+			text: '@TempData["Error"]'
+		});
+	</script>
+}

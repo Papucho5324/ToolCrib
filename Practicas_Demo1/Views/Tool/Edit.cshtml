@@ -1,0 +1,171 @@
+﻿@model Practicas_Demo1.Models.ToolModel
+@{
+    ViewData["Title"] = "Editar Herramienta";
+    ViewData["MostrarHeader"] = false;
+    ViewData["MostartMenu"] = false;
+    ViewData["MostartEmp"] = false;
+    ViewData["MostrarToolCrib"] = false;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 m-auto">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h2 class="my-2 text-center">
+                        <i class="bi bi-pencil-square me-2"></i>Editar Herramienta
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <form asp-action="Edit" method="post" id="editForm">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="NoPart" class="form-control" placeholder="Número de parte" />
+                                    <label asp-for="NoPart">Número de parte</label>
+                                    <span asp-validation-for="NoPart" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Description" class="form-control" placeholder="Descripción" />
+                                    <label asp-for="Description">Descripción</label>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Category" class="form-control" placeholder="Categoría" />
+                                    <label asp-for="Category">Categoría</label>
+                                    <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="UM" class="form-control" placeholder="Unidad de medida" />
+                                    <label asp-for="UM">Unidad de medida</label>
+                                    <span asp-validation-for="UM" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="PurshDate" type="date" class="form-control" placeholder="Fecha de compra" />
+                                    <label asp-for="PurshDate">Fecha de compra</label>
+                                    <span asp-validation-for="PurshDate" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="Precio" />
+                                    <label asp-for="Price">Precio</label>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" asp-for="TCStatus" aria-label="TC Status">
+                                            <option value="">Selecciona estado</option>
+                                            <option value="Disponible">Disponible</option>
+                                            <option value="Prestado">Prestado</option>
+                                        </select>
+                                        <label asp-for="TCStatus">TC Status</label>
+                                        <span asp-validation-for="TCStatus" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" asp-for="ProductStatus" id="StockDropdown" aria-label="Stock Status">
+                                            <option value="">Selecciona estado de stock</option>
+                                            <option value="Activo">Activo</option>
+                                            <option value="Daniado">Dañado</option>
+                                            <option value="Repacion">Reparación</option>
+                                            <option value="Baja">Baja</option>
+                                        </select>
+                                        <label asp-for="ProductStatus">Stock</label>
+                                        <span asp-validation-for="ProductStatus" class="text-danger"></span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center mt-4">
+                            <button type="submit" class="btn btn-warning px-4 me-2">
+                                <i class="bi bi-save me-1"></i> Guardar cambios
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+    }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+            color: #212529;
+        }
+
+    .input-validation-error {
+        border-color: #dc3545 !important;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#editForm").on("submit", function (e) {
+                e.preventDefault();
+
+                if (!$(this).valid()) {
+                    return;
+                }
+
+                Swal.fire({
+                    title: '¿Guardar cambios?',
+                    text: "Se actualizarán los datos de esta herramienta.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

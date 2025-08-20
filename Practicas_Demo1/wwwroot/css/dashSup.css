@@ -1,0 +1,137 @@
+﻿
+/* Sobrescribir estilos de hover de DataTables */
+#tablaFolios tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: black !important;
+}
+
+/* Asegurar que el texto sea visible en estado normal */
+/*#tablaFolios tbody tr td {
+    color: black !important;
+}*/
+
+#tablaFolios tbody tr:hover td:not(.status-cell) {
+    color: black !important;
+    background-color: transparent !important;
+}
+
+/* Personalizar colores de DataTables para mantener consistencia */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+    color: black !important;
+}
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: black !important;
+    }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            color: black !important;
+            background: black;
+        }
+
+.status-cell {
+    font-weight: bold;
+    text-align: center;
+    border-radius: 8px;
+    padding: 4px 8px;
+    
+}
+
+    .status-cell.bg-danger {
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+    }
+
+    .status-cell.bg-warning {
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+    }
+
+    .status-cell.bg-success {
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.4); 
+        color: white !important;
+    }
+
+
+.dataTables_wrapper {
+    position: relative;
+}
+
+.tooltip {
+    z-index: 1071 !important;
+    position: absolute !important;
+}
+
+.tooltip-inner {
+    max-width: 250px;
+    padding: 8px 12px;
+    font-size: 12px;
+    background-color: #333;
+    color: white;
+    border-radius: 4px;
+}
+
+.btn-disabled-container {
+    position: relative;
+    display: inline-block;
+}
+
+    .btn-disabled-container .custom-tooltip {
+        visibility: hidden;
+        width: 100px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 135%;
+        margin-left: -110px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 12px;
+    }
+
+        .btn-disabled-container .custom-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+
+    .btn-disabled-container:hover .custom-tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+#botonesDecision {
+    display: none;
+}
+
+#btnCerrarModal {
+    display: none;
+}
+
+#tablaFolios td.fecha-col {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+#tablaTools td.Description-col {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+#tablaFolios td.name-col {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+

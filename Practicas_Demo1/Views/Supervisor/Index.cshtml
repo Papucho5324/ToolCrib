@@ -1,0 +1,204 @@
+﻿@model List<FolioModel>
+@{
+    ViewData["Title"] = "Supervisión de Folios";
+    ViewData["MostrarHeader"] = true;
+    ViewData["MostartMenu"] = true;
+}
+<link rel="stylesheet" href="~/css/dashSup.css" asp-append-version="true" />
+
+
+<div class="row">
+    <div class="col-lg-10 m-auto ps-5">
+        <div class="login-container text-center ">
+            <div class="solicitar-form p-4">
+                <div class="table-responsive  ">
+                    <table id="tablaFolios" class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr class="p-2">
+                                <th>Folio</th>
+                                <th>Nombre</th>
+                                <th>Status</th>
+                                <th>Req's</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in Model)
+                            {
+                                <tr>
+                                    <td>@f.Folio</td>
+                                    <td class="name-col">@f.Nombre</td>
+                                    <td class="status-cell @(f.Status == "RECHAZADO" ? "bg-danger text-white" : (f.Status == "PENDIENTE" ? "bg-warning text-white" : ""))">
+                                        @f.Status
+                                    </td>
+                                    <td>@f.ReqSubmitted</td>
+                                    <td class="fecha-col">@f.Fecha</td>
+                                    <td>
+                                        @if (f.Status == "RECHAZADO" )
+                                        {
+                                            <div class="btn-disabled-container">
+                                                <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                    Ver Folio
+                                                </button>
+                                                <div class="custom-tooltip ">
+                                                    Folio rechazado.
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-outline-primary btn-sm "
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#folioModal"
+                                                    data-folio="@f.Folio"
+                                                    data-status="@f.Status">
+                                                Ver Folio
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Configurar DataTable primero
+            var table = $('#tablaFolios').DataTable({
+                responsive: true,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+                },
+                order: [[0, 'desc']],
+                columnDefs: [
+                    {
+                        targets: 0,
+                        type: 'num'
+                    }
+                ],
+                drawCallback: function() {
+                    // Reinicializar tooltips después de cada redibujado de la tabla
+                    initializeTooltips();
+                }
+            });
+
+            // Función para inicializar tooltips
+            function initializeTooltips() {
+                // Destruir tooltips existentes
+                $('[data-bs-toggle="tooltip "]').tooltip('dispose');
+
+                // Reinicializar tooltips con configuración específica para DataTables
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    container: function() {
+                        return $(this).closest('table').parent();
+                    },
+                    boundary: 'viewport',
+                    placement: function(context, source) {
+                        var position = $(source).offset();
+                        var tableContainer = $(source).closest('.table-responsive');
+                        var containerTop = tableContainer.offset().top;
+
+                        // Si hay espacio arriba, mostrar arriba, sino abajo
+                        if (position.top - containerTop > 60) {
+                            return 'top';
+                        } else {
+                            return 'bottom';
+                        }
+                    },
+                    trigger: 'hover focus',
+                    delay: { show: 200, hide: 100 }
+                });
+            }
+
+            // Inicializar tooltips al cargar la página
+            initializeTooltips();
+        });
+    </script>
+}
+
+<link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="~/css/solicitar.css" rel="stylesheet" />
+
+<!-- Modal corregido -->
+<div class="modal fade" id="folioModal" tabindex="-1" aria-labelledby="folioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="decisionForm" method="post" asp-action="ProcesarDecision">
+                >
+                <div class="modal-header">
+                    <h5 class="modal-title" id="folioModalLabel">Ver Folio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="Folio" id="folioInput" />
+                    <input type="hidden" name="BadgeNumber" value="@Context.Session.GetString("BadgeNumber")" />
+
+                    <div class="mb-3">
+                        <div id="estadoInfo" class="fw-bold"></div>
+                    </div>
+
+                    <div class="table-responsive mb-4" id="detalleFolioContainer">
+                        <table class="table table-striped table-bordered align-middle text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Descripcion</th>
+                                    <th>Unidad De Medida</th>
+                                    <th>Cantidad</th>
+                                    <th>Observaciones</th>
+                                    <th>Ubicación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detalleFolioBody">
+                                <!-- Aquí se cargan dinámicamente los datos -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="comentariosRechazo" class="mb-3" style="display:none;">
+                        <label for="comentarioSelect" class="form-label">Motivo de Rechazo</label>
+                        <select name="ComentarioSelect" id="comentarioSelect" class="form-select">
+                            <option value="">Selecciona un motivo</option>
+                            <option value="EL AREA NO LO REQUIERE">EL ÁREA NO LO REQUIERE</option>
+                            <option value="STOCK EN CERO">STOCK EN CERO</option>
+                            <option value="VIDA UTIL">VIDA ÚTIL</option>
+                            <option value="EXCESO CONSUMO">EXCESO CONSUMO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    <div id="botonesDecision" class="d-flex gap-2">
+                        <input type="hidden" name="Comentario" id="comentarioInput" value="" />
+
+                        <button type="submit" name="Estado" value="APROBADO" class="btn btn-success">Aprobar</button>
+                        <button type="button" class="btn btn-outline-danger" onclick="mostrarRechazo()">Rechazar</button>
+                        <button type="submit" name="Estado" value="RECHAZADO" class="btn btn-danger" id="btnFinalizarRechazo" style="display:none;">Finalizar Rechazo</button>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCerrarModal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="~/js/modal.js"></script>
+
+@if (TempData["Mensaje"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Listo!',
+            text: '@TempData["Mensaje"]',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+        });
+    </script>
+}

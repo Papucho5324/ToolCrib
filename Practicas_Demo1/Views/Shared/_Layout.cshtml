@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Tool Crip</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="~/Practicas_Demo1.styles.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+
+
+</head>
+<body>
+    @inject IHttpContextAccessor HttpContextAccessor
+
+    @{
+        var badge = HttpContextAccessor.HttpContext?.Session.GetString("BadgeNumber");
+        var name = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+        var area = HttpContextAccessor.HttpContext?.Session.GetString("Area");
+
+        var mostrarHeader = ViewData["MostrarHeader"] as bool? ?? true;
+        var mostrarMenu = ViewData["MostartMenu"] as bool? ?? true;
+        var mostrarEmp = ViewData["MostartEmp"] as bool? ?? true;
+        var mostrarToolCrib = ViewData["MostrarToolCrib"] as bool? ?? false;
+    }
+
+    @if (mostrarHeader && !string.IsNullOrEmpty(badge))
+    {
+        <header class="header">
+            <img src="~/images/Inventec.svg" width="150px" />
+
+            @if (mostrarMenu)
+            {
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Menu
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" type="submit" asp-controller="FolioStatus" asp-action="Index">ToolCrib</a></li>
+                        <li><a class="dropdown-item" type="submit" asp-controller="Supervisor" asp-action="Index">Supervisor</a></li>
+                        <li><a class="dropdown-item" type="submit" asp-controller="OfficeSup" asp-action="Index">Solicitar</a></li>
+                    </ul>
+                </div>
+
+            }
+
+            @if (mostrarEmp)
+            {
+                <nav class="navbar navbar-expand-lg bg-body-tertiary ">
+                    <div class="container-fluid">
+                        <div class="collapse navbar-collapse">
+                            <div class="navbar-nav">
+                                <h5>Usuario: <span>@badge</span></h5>
+                                <h5>Nombre: <span>@name</span></h5>
+                                <h5>Área: <span>@area</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+            }
+
+            @if (mostrarToolCrib)
+            {
+                <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                    <div class="container-fluid">
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
+                                <li class="nav-item">
+                                    <a class="nav-link  text-white" type="submit" asp-controller="FolioStatus" asp-action="Index">Verificacion</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" type="submit" asp-controller="Employee" asp-action="Login">Solicitar</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" type="submit" asp-controller="Materials" asp-action="Index">Alta Materiales</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" type="submit" asp-controller="Tool" asp-action="Index">Alta Herramientas</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" type="submit" asp-controller="Dashboard" asp-action="Index">Reportes</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            }
+        </header>
+    }
+
+
+
+    <div class="container ">
+        <main role="main" class="pb-4">
+            @RenderBody()
+        </main>
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

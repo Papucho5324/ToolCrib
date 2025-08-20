@@ -1,0 +1,151 @@
+﻿@model Practicas_Demo1.Models.MaterialsModel
+@{
+    ViewData["Title"] = "Agregar Material";
+    ViewData["MostrarHeader"] = false;
+    ViewData["MostartMenu"] = false;
+    ViewData["MostartEmp"] = false;
+    ViewData["MostrarToolCrib"] = false;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 m-auto">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-black text-white">
+                    <h2 class="my-2 text-center"><i class="bi bi-box-seam me-2"></i>Agregar material al inventario</h2>
+                </div>
+                <div class="card-body p-4">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <form asp-controller="Materials" asp-action="Crear" id="materialForm">
+                        <div class="row g-3">
+                            <!-- Primera columna -->
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" asp-for="NoPart" placeholder="Número de parte">
+                                    <label asp-for="NoPart">Número de parte</label>
+                                    <span asp-validation-for="NoPart" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" asp-for="Description" placeholder="Descripción">
+                                    <label asp-for="Description">Descripción</label>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" asp-for="UM" placeholder="Unidad de medida">
+                                    <label asp-for="UM">Unidad de medida</label>
+                                    <span asp-validation-for="UM" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" asp-for="Brand" placeholder="Marca">
+                                    <label asp-for="Brand">Marca</label>
+                                    <span asp-validation-for="Brand" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Segunda columna -->
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" asp-for="Specification" placeholder="Especificación">
+                                    <label asp-for="Specification">Especificación</label>
+                                    <span asp-validation-for="Specification" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input type="number" step="0.01" class="form-control" asp-for="Price" placeholder="Precio">
+                                    <label asp-for="Price">Precio</label>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" asp-for="Location" placeholder="Ubicación">
+                                    <label asp-for="Location">Ubicación</label>
+                                    <span asp-validation-for="Location" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" asp-for="Stock" placeholder="Stock">
+                                    <label asp-for="Stock">Stock</label>
+                                    <span asp-validation-for="Stock" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center mt-4">
+                            <button type="submit" class="btn btn-dark px-4 me-2">
+                                <i class="bi bi-save me-1"></i> Guardar material
+                            </button>
+                            <a class="btn btn-outline-secondary px-4" asp-action="Index">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+    .input-validation-error {
+        border-color: #dc3545 !important;
+    }
+</style>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#materialForm").on("submit", function (e) {
+                e.preventDefault();
+
+                if (!$(this).valid()) {
+                    return; // Si no pasa validación, no continua
+                }
+
+                Swal.fire({
+                    title: '¿Guardar material?',
+                    text: "Confirma que deseas agregar este material.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0d6efd',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit(); // Enviar el formulario
+                    }
+                });
+            });
+        });
+    </script>
+}
